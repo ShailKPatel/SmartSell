@@ -35,27 +35,18 @@ To train a neural network that accurately predicts `num_units_sold` using both r
 
 ---
 
-## 🏗️ Model Architecture
+## ❌ Columns Not Used in Model
 
-- Input: Preprocessed numerical and encoded categorical features
-- Layers: Dense layers with ReLU activation
-- Regularization: Dropout & BatchNorm
-- Output: Single neuron for regression (units sold)
-- Loss: MSE or MAE
+The following columns are excluded from the model as they do not contribute predictive value or are used only for intermediate feature derivation:
 
----
-
-## 🧰 Tools & Technologies
-
-- Python
-- Pandas / NumPy
-- Scikit-learn
-- TensorFlow / Keras or PyTorch
-- Matplotlib / Seaborn for EDA
+- `model_id`: Unique identifier, not informative for prediction
+- `launch_date`: Used only to derive `launch_month` and `launch_day`
+- `ip_rating`: Used to derive dust and water resistance levels
 
 ---
 
 
+---
 
 ## 📄 License
 
@@ -63,5 +54,6 @@ MIT License
 
 ---
 
+## 🤝 Contributing
 
-
+Pull requests and ideas are welcome. Let’s make sales prediction smarter!

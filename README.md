@@ -251,6 +251,332 @@ This section outlines the **final features** selected for modeling `Sem3_Risk_Fl
 - **Modeling**: Use `student_performance_model_features_v2.csv` to train a **Random Forest** model for predicting `Sem3_Risk_Flag`.
 - **EDA**: Explore distributions, correlations, and policy thresholds before training.
 
+#  Preprocessing for PredictGrad
+
+## Overview
+
+This section outlines the features and preprocessing steps used to model **`Sem3_Risk_Flag`** (1 if Semester 3 percentile drops by ≥10 from Semester 2, else 0) in the PredictGrad project.
+
+- **Dataset**: `student_performance_with_features.csv` (905 rows, 62 columns)  
+- **Feature Selection Output**: `student_performance_model_features_v2.csv` (13 columns: 12 features + target)  
+- **Preprocessing Output**: `student_performance_preprocessed.csv` (24 columns after one-hot encoding)  
+- **Scripts**: 
+  - `create_model_features_v2.py` (feature selection)  
+  - `preprocess_features_v3.py` (preprocessing)
+
+---
+
+## Selected Features
+
+### Demographics
+- `Gender` → Encoded as: `Gender_M`
+- `Religion` → Encoded as: `Religion_Hindu`, `Religion_Jain`, `Religion_Muslim`, `Religion_Sikh`
+
+### Academic Grouping
+- `Branch` → Encoded as: `Branch_AIML`, `Branch_CE`, `Branch_CEA`, `Branch_CS&IT`, `Branch_CSD`, `Branch_CSE`, `Branch_CST`, `Branch_IT`, `Branch_RAI`
+- `Roll-1`
+
+### Semester 1/2 Marks
+- `Sem1_Core_Theory_Total`
+- `Sem2_Core_Theory_Total`
+
+### Semester 1/2 Attendance
+- `Sem1_Core_Attendance_Avg`
+- `Sem2_Core_Attendance_Avg`
+- `Sem1_Attendance_Threshold`
+- `Sem2_Attendance_Threshold`
+
+### Engineered Features
+- `Sem2_Percentile`
+- `Sem2_Sem1_Percentile_Diff`
+
+---
+
+## Preprocessing Steps
+
+### Categorical Encoding
+- One-hot encode: `Gender`, `Religion`, `Branch`  
+  → Use `drop_first=True` to prevent multicollinearity.
+
+### Missing Values
+- None found.  
+- Imputation logic included:
+  - Median for numerical
+  - Mode for categorical (as fallback)
+
+### Data Validation
+- `Religion` distribution: Hindu dominant (829), minorities sparse (e.g., Sikh: 1)
+  - Keep for now, monitor importance.
+- `Sem3_Risk_Flag` distribution: 80.22% (class 0), 19.78% (class 1)
+  - Use `class_weight='balanced'` in Random Forest
+
+### Data Types
+| Feature Type | Examples | Data Type |
+|--------------|----------|-----------|
+| Integer      | `Roll-1`, `Theory Totals` | `int32` |
+| Float        | `Attendance_Avg`, `Percentile Diff` | `float32` |
+| Binary       | One-hot features, thresholds, target | `int8` |
+
+
+
+### Attendance Policy
+- Use `Attendance_Avg` for engagement
+- Use `Attendance_Threshold` to reflect ≥75% policy rule
+
+---
+
+## Feature Selection Table
+
+| Feature Category      | Features                                     | Reason for Inclusion                                              | Reason for Exclusion                                        |
+|-----------------------|----------------------------------------------|-------------------------------------------------------------------|-------------------------------------------------------------|
+| **Demographics**      | `Gender`, `Religion`                         | May reveal patterns (e.g., socioeconomic effects)                 | —                                                           |
+| **Academic Grouping** | `Branch`, `Roll-1`                           | Branch captures trends; Roll-1 proxies merit                      | Div-1/2/3, Roll-2/3 (redundant)                             |
+| **Sem 1/2 Marks**     | `Sem1/2_Core_Theory_Total`                   | Captures absolute academic performance                            | Individual/non-core marks (due to correlation)              |
+| **Sem 1/2 Attendance**| `Core_Attendance_Avg`, `Attendance_Threshold`| Granular + policy-based representation                            | Individual attendance columns (highly correlated)           |
+| **Engineered**        | `Sem2_Percentile`, `Sem2_Sem1_Percentile_Diff`| Aligns with target logic                                          | Sem1_Percentile (redundant), Sem3_Sem2_Diff (leakage risk) |
+| **Others**            | —                                            | —                                                                 | ID, Mentor fields, Sem 3 marks (non-predictive or leakage)  |
+
+---
+
+## Correlation & Policy Notes
+
+### 📌 High Correlations:
+- `Sem1/2_Core_Theory_Total` ↔ `Sem2_Percentile`: **Kept**, monitor feature importance
+- Attendance averages ↔ Threshold flags: **Complementary**, both retained
+
+### Attendance Policy:
+- `≥75%` earns **bonus marks**  
+- `<75%` triggers **penalty**  
+- Data uses **raw attendance**, so `Attendance_Threshold` is created manually.
+
+---
+
+## Model Notes & Strategy
+
+- **Model**: Random Forest (good for:
+  - Mixed data types
+  - Small dataset (905 rows)
+  - Feature interpretability)
+
+- **Feature Strategy**: 
+  - Start with 12 carefully selected features
+  - Add niche/high-impact ones if model underperforms
+
+---
+
+## Recommendations
+
+- **Religion**: Monitor feature importance; drop if noisy
+- **Class Imbalance**: Use `class_weight='balanced'`
+- **Post-modeling Pruning**:
+  - Drop low-importance features (e.g., `Sem1_Attendance_Threshold` if needed)
+
+---
+
+## Usage
+
+- **For Modeling**: Use `student_performance_preprocessed.csv` with Random Forest or other classifiers
+- **For EDA**: Explore correlations, feature-target relationships, and cross-tabs
+
+Here's your content converted into clean, well-structured **Markdown** for documentation or a project README:
+
+---
+
+# Exploratory Data Analysis (EDA) for PredictGrad
+
+## Overview
+
+This document details the exploratory data analysis (EDA) conducted for the **PredictGrad** project, which aims to predict the `Sem3_Risk_Flag`:
+
+* `1` if a student's Semester 3 percentile drops by 10+ compared to Semester 2.
+* `0` otherwise.
+
+EDA was performed in two versions to refine features and validate their predictive power before modeling with Random Forest.
+
+* **Dataset**:
+
+  * `student_performance_preprocessed.csv` (v1)
+  * `student_performance_preprocessed_v2.csv` (v2, 23 columns after dropping 1 feature)
+* **Scripts**:
+
+  * `eda_analysis.py` (v1, `artifact_id: 116bb1fa-4794-4784-81e8-77368335c9a8`)
+  * `eda_analysis_v2.py` (v2, `artifact_id: 030ebc15-25bb-495b-9e13-f8952fdbbe59`)
+* **Outputs**:
+
+  * Plots saved to `eda_plots/` (v1) and `eda_plots_v2/` (v2)
+
+---
+
+## EDA Process
+
+The analysis focused on **numerical features** to explore:
+
+* **Correlation Matrix**: Identify multicollinearity.
+* **Histograms**: Visualize feature distributions by class (`Sem3_Risk_Flag`).
+* **Box Plots**: Compare medians and spreads by class.
+
+---
+
+## Version 1: `eda_analysis.py`
+
+* **Dataset**: `student_performance_preprocessed.csv` (24 columns)
+* **Numerical Features Analyzed**:
+  `Roll-1`, `Sem1/2_Core_Theory_Total`, `Sem1/2_Core_Attendance_Avg`, `Sem2_Percentile`, `Sem2_Sem1_Percentile_Diff`
+
+### Findings
+
+#### Correlation Matrix
+
+* **High Correlation** (0.99):
+  `Sem2_Core_Theory_Total` ↔ `Sem2_Percentile` — severe multicollinearity
+* **Moderate Correlation**:
+
+  * `Sem1/2_Core_Attendance_Avg` ↔ `Sem2_Percentile` (\~0.26–0.31)
+  * `Sem1_Core_Theory_Total` ↔ `Sem2_Percentile` (0.87)
+* **Negative Correlation**:
+
+  * `Roll-1` ↔ `Sem2_Percentile` (-0.32) — higher roll numbers link to lower performance
+
+#### Histograms
+
+* `Sem1/2_Core_Attendance_Avg`:
+
+  * Both classes peak at 90–100%
+  * Longer tail <75% for `Sem3_Risk_Flag = 1`
+  * **Weak class separation**
+
+* `Sem2_Percentile`:
+
+  * `Sem3_Risk_Flag = 0`: Bimodal (\~20, \~80)
+  * `Sem3_Risk_Flag = 1`: Centered at 40–60
+  * **Strong separation**
+
+#### Box Plots
+
+* `Sem1/2_Core_Attendance_Avg`:
+
+  * Medians overlap (90%), IQRs: 85–95%
+  * More outliers <75% for at-risk students
+  * **Weak predictor**
+
+* `Sem2_Percentile`:
+
+  * `Flag = 0`: Median \~65, IQR 40–80
+  * `Flag = 1`: Median \~50, IQR 30–65
+  * **Strong class separation**
+
+---
+
+## Version 2: `eda_analysis_v2.py`
+
+### Changes
+
+* **Dropped Feature**: `Sem2_Core_Theory_Total` due to 0.99 correlation with `Sem2_Percentile`
+* **Dataset Updated**: `student_performance_preprocessed_v2.csv` (23 columns)
+* **Numerical Features Analyzed**: 6 (excluding the dropped one)
+
+### Findings
+
+#### Correlation Matrix
+
+* Multicollinearity reduced by dropping `Sem2_Core_Theory_Total`
+* Other correlations remained stable:
+
+  * `Sem1/2_Core_Attendance_Avg` ↔ `Sem2_Percentile` (\~0.26–0.31)
+  * `Sem1_Core_Theory_Total` ↔ `Sem2_Percentile` (0.87)
+
+#### Histograms & Box Plots
+
+* Distributions unchanged since the dropped feature was not plotted
+* **Key Insight**:
+
+  * `Sem2_Percentile` remains a **strong predictor**
+  * `Sem1/2_Core_Attendance_Avg` remains **weak**
+
+---
+
+## Parameter Changes
+
+### Feature Reduction
+
+* **Dropped**: `Sem2_Core_Theory_Total`
+
+  * Columns reduced from 24 → 23
+  * Features used by model: 12 → 11
+
+### Updated Modeling Features (v2)
+
+* `Gender`, `Religion`, `Branch`, `Roll-1`
+* `Sem1_Core_Theory_Total`, `Sem1/2_Core_Attendance_Avg`
+* `Sem1/2_Attendance_Threshold`, `Sem2_Percentile`
+* `Sem2_Sem1_Percentile_Diff`
+
+---
+
+## Monitor Features
+
+* **`Sem1/2_Core_Attendance_Avg`**:
+
+  * Weak predictor; if feature importance is low, may drop and rely on `Sem1/2_Attendance_Threshold`
+
+* **`Religion`**:
+
+  * Sparse categories (e.g., Christian = 3, Sikh = 1)
+  * Monitor for noise; may be excluded if unhelpful
+
+---
+
+## Class Imbalance Strategy
+
+* Class distribution:
+
+  * `Sem3_Risk_Flag = 0`: 80.22%
+  * `Sem3_Risk_Flag = 1`: 19.78%
+* **Approach**:
+
+  * Use `class_weight='balanced'` in Random Forest
+
+---
+
+## How EDA Changed Our Approach
+
+### Feature Reduction
+
+* Dropped `Sem2_Core_Theory_Total` to:
+
+  * Simplify the model
+  * Reduce multicollinearity
+  * Retain `Sem2_Percentile` as a cleaner, directly relevant predictor
+
+### Feature Prioritization
+
+* **Top Predictors**:
+
+  * `Sem2_Percentile`
+  * `Sem2_Sem1_Percentile_Diff`
+
+* **Under Review**:
+
+  * `Sem1/2_Core_Attendance_Avg` — weak separation
+  * May rely instead on policy-aligned threshold (`Sem1/2_Attendance_Threshold`)
+
+### Pitch Insight
+
+* `Sem2_Percentile` clearly shows at-risk students clustering at 40–60 range
+
+  * **Actionable insight**: Students <50th percentile may need intervention
+
+### Model Strategy
+
+* **Random Forest** chosen:
+
+  * Handles mixed types (categorical + numerical)
+  * Supports feature importance ranking
+* **Metric Priority**:
+
+---
+
+
 **Contact**
 
 For any inquiries or further information regarding this project, please feel free to connect with me on LinkedIn: [https://www.linkedin.com/in/shail-k-patel/](https://www.linkedin.com/in/shail-k-patel/)

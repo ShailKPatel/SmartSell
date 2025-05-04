@@ -615,6 +615,59 @@ Original: 80.22% (726) Sem3_Risk_Flag = 0, 19.78% (179) Sem3_Risk_Flag = 1.
 Train and CV Set: 80.25% (580) Sem3_Risk_Flag = 0, 19.75% (144) Sem3_Risk_Flag = 1.
 Test Set: 80.11% (145) Sem3_Risk_Flag = 0, 19.89% (36) Sem3_Risk_Flag = 1.
 
+Feature Update and Data Splitting for PredictGrad (v3)
+Overview
+This document outlines the feature update and data splitting process for the PredictGrad project to predict Sem3_Risk_Flag. We updated the feature set by dropping low-impact features, preprocessed the data, and split it into train + CV and test sets, aligning with previous steps but reflecting the new feature set.
+
+Input Dataset: student_performance_model_features_v2.csv (905 rows, 13 columns: 12 features + Sem3_Risk_Flag).
+Script: update_features_and_split.py (artifact_id: e5a2d8f3-2c9e-4a1b-9f8d-6c7b4e1a0f2d).
+Outputs:
+Updated feature-selected dataset: student_performance_model_features_v3.csv (905 rows, 9 columns: 8 features + Sem3_Risk_Flag).
+Preprocessed dataset: student_performance_preprocessed_v3.csv (905 rows, 18 columns after encoding).
+Train + CV set: student_performance_fold_data_v3.csv (724 rows, 80%).
+Test set: student_performance_test_v3.csv (181 rows, 20%).
+
+
+
+Feature Updates
+
+Dropped Features:
+Religion: Low importance (e.g., Religion_Sikh: 0.0005) and sparse categories (e.g., Sikh: 1 student).
+Gender: Low importance (Gender_M: 0.0138) and weak predictive power per EDA.
+Sem1/2_Core_Attendance_Avg: Moderate importance (0.152, 0.099) but weak predictive power (overlapping distributions in EDA); rely on Sem1/2_Attendance_Threshold.
+
+
+New Feature Set: Reduced from 12 features to 8 features (before encoding):
+Remaining features: Roll-1, Sem1_Core_Theory_Total, Sem1/2_Attendance_Threshold, Sem2_Percentile, Sem2_Sem1_Percentile_Diff, Branch.
+
+
+
+Preprocessing
+
+One-Hot Encoding: Encoded Branch (e.g., Branch_AIML, Branch_CE, etc.), dropping the first category (Branch_AI), resulting in 9 Branch_* columns.
+Data Types:
+int32: Roll-1, Sem1_Core_Theory_Total.
+float32: Sem2_Percentile, Sem2_Sem1_Percentile_Diff.
+int8: Sem1/2_Attendance_Threshold, Sem3_Risk_Flag, Branch_*.
+
+
+
+Splitting Process
+
+Hybrid Approach:
+Train + CV set: 80% (724 rows) for 5-fold CV.
+Test set: 20% (181 rows) for final evaluation.
+
+
+Stratification: Stratified by Sem3_Risk_Flag to maintain class balance (80.22% Sem3_Risk_Flag = 0, 19.78% Sem3_Risk_Flag = 1).
+Random Seed: Set to 42 for reproducibility.
+
+Next Steps
+
+Retrain Model: Use student_performance_fold_data_v3.csv to retrain the Random Forest with SMOTE, custom class weights (e.g., 1:6 ratio), and expanded hyperparameter tuning.
+Evaluate Performance: Target F1 > 0.5, recall > 0.6 for Sem3_Risk_Flag = 1.
+Interpretability: If performance improves, use SHAP to understand feature contributions for the pitch.
+
 
 **Contact**
 

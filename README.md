@@ -808,6 +808,85 @@ Scoring: F1-score (macro).
 
 Cross-Validation: 5-fold CV using StratifiedKFold.
 
+Feature Update for PredictGrad (v5)
+Overview
+This document outlines the feature update process for the PredictGrad project to predict Sem3_Risk_Flag. We conducted an exploratory data analysis (EDA) to guide feature selection, aiming to add relevant features while minimizing multicollinearity and noise in our small dataset (905 rows, ~179 class 1 samples).
+
+Dataset:
+Input Train + CV set: student_performance_fold_data_v4.csv (724 rows, 14 columns).
+Input Test set: student_performance_test_v4.csv (181 rows, 14 columns).
+Updated Train + CV set: student_performance_fold_data_v5.csv (724 rows, 16 columns).
+Updated Test set: student_performance_test_v5.csv (181 rows, 16 columns).
+
+
+Script: update_features_v5.py (artifact_id: 23de0a17-0914-4391-b0f3-9d473be9a759).
+
+Current Features
+Before the update, the dataset included the following columns:
+
+Roll-1, Sem1_Core_Theory_Total, Sem2_Percentile, Sem2_Sem1_Percentile_Diff, Sem2_Attendance_Threshold, Branch_CE, Branch_CEA, Branch_CS&IT, Branch_CSE, Branch_IT, Percentile_Diff_Impact, Sem2_Percentile_Bin_Medium, Sem2_Percentile_Bin_High, Sem3_Risk_Flag.
+
+EDA Summary and Rationale for Changes
+We performed a text-based EDA to evaluate potential features from student_performance_dataset.csv and student_performance_with_features.csv. The EDA focused on class separation (mean differences by Sem3_Risk_Flag), correlations with existing features, and correlations with the target to ensure new features add value without introducing noise or overfitting.
+EDA Findings
+
+Class Separation (Mean Values by Sem3_Risk_Flag):
+
+Theory scores (e.g., DBMS Theory: Diff = 4.31, Risk=1: 64.54, Risk=0: 60.24) and practical scores (e.g., Data Structures using Java Practical: Diff = 3.71, Risk=1: 74.38, Risk=0: 70.66) showed small differences, with at-risk students (Sem3_Risk_Flag = 1) unexpectedly scoring higher. This suggests these features may not strongly differentiate risk levels as expected.
+Attendance features (e.g., Math-1 Attendance: Diff = -2.14, Risk=1: 89.07, Risk=0: 91.21) showed at-risk students had slightly lower attendance, aligning with expectations, but the differences were small (Diff ~ -1 to -2.4).
+Sem1_Percentile (Diff = 4.51, Risk=1: 53.67, Risk=0: 49.16) also showed higher values for at-risk students, which is counterintuitive and suggests potential issues with the target definition.
+
+
+Correlations with Existing Features:
+
+Theory scores were highly correlated with Sem1_Core_Theory_Total (e.g., Math-1 Theory: 0.869) and Sem2_Percentile (e.g., DBMS Theory: 0.903), indicating redundancy.
+Sem1_Percentile was extremely correlated with Sem1_Core_Theory_Total (0.987) and Sem2_Percentile (0.877), making it redundant.
+Practicals had moderate correlations (e.g., Java-1 Practical with Sem1_Core_Theory_Total: 0.496; Data Structures using Java Practical with Sem2_Percentile: 0.617), suggesting they add new information without excessive multicollinearity.
+Attendance features had low correlations with existing features (e.g., Math-1 Attendance with Sem2_Percentile: 0.224), but their predictive power was limited.
+
+
+Correlations with Sem3_Risk_Flag:
+
+Theory scores (e.g., DBMS Theory: 0.116) and practicals (e.g., Data Structures using Java Practical: 0.083) had very low correlations (0.03–0.12), indicating limited predictive power.
+Attendance features had slightly higher correlations (e.g., Math-1 Attendance: -0.114, Fundamental of Electronics and Electrical Attendance: -0.099), with negative values aligning with expectations (lower attendance correlates with higher risk), but the correlations were weak.
+Sem1_Percentile had a low correlation (0.062) and a positive value, contradicting the expectation that lower percentiles should correlate with higher risk.
+
+
+
+Why Individual Subject Attendance Was Not Included
+Individual subject attendance features (e.g., Math-1 Attendance, Java-2 Attendance) were evaluated but excluded for the following reasons:
+
+Weak Predictive Power: Their correlations with Sem3_Risk_Flag were low (ranging from -0.064 to -0.114), indicating limited ability to predict risk. For example, Math-1 Attendance had a correlation of -0.114, meaning lower attendance weakly correlates with higher risk, but the effect is small.
+Small Class Separation: The mean differences by Sem3_Risk_Flag were modest (e.g., Math-1 Attendance: Diff = -2.14, Environmental Science Attendance: Diff = -2.42), suggesting attendance doesn’t strongly differentiate at-risk students.
+Redundancy with Existing Feature: Sem2_Attendance_Threshold already captures the key signal of attendance issues (attendance below a threshold), and its binary nature (threshold-based) likely makes it more predictive than raw attendance values. Adding individual attendance features risks introducing noise without significant gain.
+Low Correlations with Existing Features: While their correlations with existing features like Sem2_Percentile (e.g., 0.224 for Math-1 Attendance) were low, this also means they don’t add much complementary information to what’s already captured.
+
+Changes Made and Logic Behind New Parameters
+Based on the EDA, we made the following changes:
+
+Excluded Redundant Features:
+Theory scores (e.g., Math-1 Theory, DBMS Theory) were excluded due to high correlations with Sem1_Core_Theory_Total (0.83–0.91) and Sem2_Percentile (0.73–0.90), which risked multicollinearity and overfitting.
+Sem1_Percentile was excluded due to its high correlation with Sem1_Core_Theory_Total (0.987) and Sem2_Percentile (0.877), making it redundant, and its low correlation with Sem3_Risk_Flag (0.062) with a counterintuitive positive direction.
+Attendance features were excluded due to their weak predictive power and redundancy with Sem2_Attendance_Threshold.
+
+
+Added Features:
+Java-1 Practical: This Semester 1 practical score was added because it had a moderate correlation with Sem1_Core_Theory_Total (0.496), reducing multicollinearity risk compared to theory scores, and a low correlation with Sem3_Risk_Flag (0.027). While its predictive power is limited, practical scores might capture hands-on skills not reflected in Sem1_Core_Theory_Total (theory-based), and its class separation (Diff = 0.78) is comparable to theory scores.
+Data Structures using Java Practical: This Semester 2 practical score was added for similar reasons, with a moderate correlation with Sem2_Percentile (0.617) and a low correlation with Sem3_Risk_Flag (0.083). Its class separation (Diff = 3.71) suggests some potential to differentiate risk levels, and it tests whether Semester 2 practical performance adds value.
+
+
+Logic Behind Selection:
+We prioritized features with moderate correlations to existing features to add new information without redundancy.
+Practicals were chosen over theory scores to explore whether hands-on performance provides a unique signal, especially since Sem1_Core_Theory_Total already aggregates theory performance.
+We limited the number of new features (only 2 added) to avoid overfitting, given the small dataset size (905 rows, ~16 features total).
+
+
+
+Updated Feature Set
+The updated dataset now includes 16 columns:
+
+Roll-1, Sem1_Core_Theory_Total, Sem2_Percentile, Sem2_Sem1_Percentile_Diff, Sem2_Attendance_Threshold, Branch_CE, Branch_CEA, Branch_CS&IT, Branch_CSE, Branch_IT, Percentile_Diff_Impact, Sem2_Percentile_Bin_Medium, Sem2_Percentile_Bin_High, Java-1 Practical, Data Structures using Java Practical, Sem3_Risk_Flag.
+
 
 
 

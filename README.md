@@ -662,11 +662,39 @@ Test set: 20% (181 rows) for final evaluation.
 Stratification: Stratified by Sem3_Risk_Flag to maintain class balance (80.22% Sem3_Risk_Flag = 0, 19.78% Sem3_Risk_Flag = 1).
 Random Seed: Set to 42 for reproducibility.
 
-Next Steps
+Feature Update and Model Retraining for PredictGrad (v3)
+Overview
+This document outlines the model retraining process for the PredictGrad project to predict Sem3_Risk_Flag using the updated dataset (v3) after dropping low-impact features. We applied SMOTE, custom class weights, and expanded hyperparameter tuning to improve performance on the minority class (Sem3_Risk_Flag = 1).
 
-Retrain Model: Use student_performance_fold_data_v3.csv to retrain the Random Forest with SMOTE, custom class weights (e.g., 1:6 ratio), and expanded hyperparameter tuning.
-Evaluate Performance: Target F1 > 0.5, recall > 0.6 for Sem3_Risk_Flag = 1.
-Interpretability: If performance improves, use SHAP to understand feature contributions for the pitch.
+Dataset:
+Train + CV set: student_performance_fold_data_v3.csv (724 rows, 18 columns).
+Test set: student_performance_test_v3.csv (181 rows, 18 columns).
+
+
+Script: update_and_retrain.py (artifact_id: 246cd228-ad71-4d56-9793-aebd784a4d5c).
+Outputs:
+Updated model: model_outputs_v2/random_forest_model_v2.pkl.
+Updated feature importance: model_outputs_v2/feature_importance_v2.csv.
+
+
+
+Retraining Process
+
+Class Imbalance Adjustments:
+SMOTE: Oversampled the minority class (Sem3_Risk_Flag = 1) in training folds to balance the class distribution (original: 80.25% Sem3_Risk_Flag = 0, 19.75% Sem3_Risk_Flag = 1).
+Custom Class Weights: Set class_weight={0: 1, 1: 6} (1:6 ratio) to penalize false negatives, prioritizing recall for Sem3_Risk_Flag = 1.
+
+
+Hyperparameter Tuning:
+Expanded grid: n_estimators: [100, 200, 300], max_depth: [10, 20, None], min_samples_split: [2, 5], min_samples_leaf: [1, 2].
+Scoring: F1-score (macro) to balance performance across classes.
+
+
+Cross-Validation: 5-fold CV using StratifiedKFold (~579 train, ~145 validation per fold).
+
+
+
+
 
 
 **Contact**

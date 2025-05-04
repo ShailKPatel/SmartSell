@@ -162,6 +162,95 @@ The following 35 features were chosen for their relevance to predicting Semester
 - **Modeling**: Use `student_performance_model_features.csv` to train a model (e.g., Random Forest) to predict `Sem3_Risk_Flag`
 - **EDA**: Analyze feature correlations (e.g., attendance vs. risk) to refine feature selection
 
+# Feature Selection for PredictGrad
+
+## Overview
+
+This section outlines the **final features** selected for modeling `Sem3_Risk_Flag` (1 if Semester 3 percentile drops by 10+ from Semester 2, else 0) in the **PredictGrad** project. The selected 12 features are optimized for tree-based models (e.g., Random Forest) to reduce multicollinearity and reflect attendance policy constraints (≥75% = bonus, <75% = penalty — not reflected in raw marks).
+
+- **Dataset**: `student_performance_with_features.csv` (905 rows, 62 columns)  
+- **Output**: `student_performance_model_features_v2.csv` (13 columns: 12 features + `Sem3_Risk_Flag`)  
+- **Script**: `select_final_features_v5.py`
+
+---
+
+## Selected Features
+
+### Demographics
+- `Gender`
+- `Religion`
+
+### Academic Grouping
+- `Branch`
+- `Roll-1`
+
+### Semester 1/2 Marks
+- `Sem1_Core_Theory_Total`
+- `Sem2_Core_Theory_Total`
+
+### Semester 1/2 Attendance
+- `Sem1_Core_Attendance_Avg`
+- `Sem2_Core_Attendance_Avg`
+- `Sem1_Attendance_Threshold` (1 if average ≥75%)
+- `Sem2_Attendance_Threshold` (1 if average ≥75%)
+
+### Engineered Features
+- `Sem2_Percentile`
+- `Sem2_Sem1_Percentile_Diff`
+
+---
+
+## Feature Selection Table
+
+| **Feature Category**     | **Features**                                          | **Reason for Inclusion**                                                        | **Reason for Exclusion**                                                                 |
+|--------------------------|-------------------------------------------------------|----------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| **Demographics**         | `Gender`, `Religion`                                  | May reveal hidden patterns (e.g., socioeconomic/cultural effects)               | –                                                                                        |
+| **Academic Grouping**    | `Branch`, `Roll-1`                                     | Captures academic trends and merit via school placement                         | `Div-1/2/3`, `Roll-2/3` — redundant with `Branch`, `Roll-1`                              |
+| **Marks (Sem 1/2)**      | `Sem1/2_Core_Theory_Total`                             | Represents total core performance; complements percentile                       | Individual marks and non-core (e.g., `Math-1 Theory`, `Env Science Theory`)              |
+| **Attendance (Sem 1/2)** | `Sem1/2_Core_Attendance_Avg`, `Sem1/2_Attendance_Threshold` | Combines detailed and policy-driven attendance signals                          | Individual subject attendance (e.g., `Math-1 Attendance`) due to redundancy              |
+| **Engineered**           | `Sem2_Percentile`, `Sem2_Sem1_Percentile_Diff`        | Aligns with percentile-based target and performance trend                       | `Sem1_Percentile` (redundant); `Sem3_Sem2_Percentile_Diff` (leakage risk)               |
+| **Others**               | –                                                     | –                                                                                | `Student ID`, `Mentor-1/2/3`, Semester 3 data (to avoid label leakage)                   |
+
+---
+
+## Correlation and Policy Notes
+
+- **High Correlation**:  
+  - Between `Sem1/2_Core_Theory_Total` and `Sem2_Percentile` — retained for modeling, watch for redundancy.
+  - Between attendance averages and threshold flags — included for both granular and policy insights.
+
+- **Attendance Policy**:  
+  - ≥75% = bonus marks  
+  - <75% = penalties  
+  - **Note**: Raw marks are used (no bonus/penalty applied), but `Sem1/2_Attendance_Threshold` flags incorporate policy logic.
+
+- **Standardization**:  
+  - Not required for tree-based models (e.g., Random Forest).  
+  - Raw attendance averages retained.
+
+- **Model Recommendation**:  
+  - **Random Forest** (robust to mixed data types, small sample size, and allows feature importance).
+
+- **Feature Strategy**:  
+  - Start with 12 selected features to **avoid overfitting**.  
+  - Add subject-specific or niche features (e.g., `Java-1 Theory`) only if necessary.
+
+---
+
+## Recommendations
+
+- Validate `Religion` field in EDA — drop if noisy.
+- Run correlation analysis to confirm no high redundancy remains.
+- After model training, inspect **feature importances**:
+  - Drop low-impact features (e.g., `Sem1_Attendance_Threshold`) if needed.
+
+---
+
+## Usage
+
+- **Modeling**: Use `student_performance_model_features_v2.csv` to train a **Random Forest** model for predicting `Sem3_Risk_Flag`.
+- **EDA**: Explore distributions, correlations, and policy thresholds before training.
+
 **Contact**
 
 For any inquiries or further information regarding this project, please feel free to connect with me on LinkedIn: [https://www.linkedin.com/in/shail-k-patel/](https://www.linkedin.com/in/shail-k-patel/)

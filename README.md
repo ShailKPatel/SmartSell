@@ -44,6 +44,124 @@ The preprocessing phase transformed the raw data into a format suitable for mach
 * **Output:** All original columns, along with the newly engineered features, were saved to the file `student_performance_with_percentiles.csv`.
 * **Script:** The Python script used for these calculations is `calculate_semester_totals_percentiles.py`.
 
+# PredictGrad
+
+## Overview
+
+### Feature Selection for PredictGrad
+
+This section outlines the features selected for modeling the `Sem3_Risk_Flag` (1 if Semester 3 percentile drops by 10+ from Semester 2, else 0) in the PredictGrad project. The dataset (`student_performance_with_features.csv`) was filtered to include 35 predictive features plus the output label, saved to `student_performance_model_features.csv`.
+
+- **Dataset**: `student_performance_with_features.csv` (905 rows, 62 columns)  
+- **Output**: `student_performance_model_features.csv` (36 columns: 35 features + `Sem3_Risk_Flag`)  
+- **Script**: `select_model_features.py`
+
+---
+
+## Selected Features
+
+The following 35 features were chosen for their relevance to predicting Semester 3 academic risk:
+
+### Demographics
+- `Gender`
+- `Religion`
+
+### Academic Grouping
+- `Branch`
+- `Roll-1`
+
+### Semester 1/2 Marks
+
+**Theory**:
+- `Math-1 Theory`
+- `Physics Theory`
+- `Java-1 Theory`
+- `Software Engineering Theory`
+- `Math-2 Theory`
+- `Data Structures using Java Theory`
+- `DBMS Theory`
+- `Fundamental of Electronics and Electrical Theory`
+- `Java-2 Theory`
+
+**Practical**:
+- `Physics Practical`
+- `Java-1 Practical`
+- `Software Engineering Practical`
+- `Data Structures using Java Practical`
+- `DBMS Practical`
+- `Fundamental of Electronics and Electrical Practical`
+- `Java-2 Practical`
+
+**Non-Core**:
+- `Environmental Science Theory`
+- `IOT Workshop Practical`
+- `Computer Workshop Practical`
+
+### Semester 1/2 Attendance
+- `Math-1 Attendance`
+- `Physics Attendance`
+- `Java-1 Attendance`
+- `Software Engineering Attendance`
+- `Environmental Science Attendance`
+- `IOT Workshop Attendance`
+- `Math-2 Attendance`
+- `Data Structures using Java Attendance`
+- `DBMS Attendance`
+- `Fundamental of Electronics and Electrical Attendance`
+- `Java-2 Attendance`
+
+### Engineered Features
+- `Sem1_Core_Theory_Total`
+- `Sem2_Core_Theory_Total`
+- `Sem1_Percentile`
+- `Sem2_Percentile`
+- `Sem2_Sem1_Percentile_Diff`
+- `Sem1_Core_Attendance_Avg`
+- `Sem2_Core_Attendance_Avg`
+
+---
+
+## Feature Selection Table
+
+| **Feature Category**     | **Features**                                         | **Reason for Inclusion**                                             | **Reason for Exclusion**                                          |
+|--------------------------|------------------------------------------------------|----------------------------------------------------------------------|-------------------------------------------------------------------|
+| **Demographics**         | Gender, Religion                                     | May reveal hidden patterns (e.g., socioeconomic or cultural effects) | -                                                                 |
+| **Academic Grouping**    | Branch, Roll-1                                       | Branch captures program-specific trends; Roll-1 proxies school merit | Div-1/2/3, Roll-2/3 (redundant)                                  |
+| **Semester 1/2 Marks**   | Theory, Practical, Non-Core (listed above)           | Direct indicators of academic performance and skills                 | Semester 3 marks, Sem3 total/percentile (to avoid leakage)       |
+| **Attendance**           | All core and non-core attendance (listed above)      | Correlates with engagement and performance                           | -                                                                 |
+| **Engineered Features**  | Totals, percentiles, diffs, attendance averages      | Summarize trends; diff captures decline                              | Sem3_Sem2_Percentile_Diff (leakage risk)                         |
+| **Others**               | -                                                    | -                                                                    | Student ID, Mentor-1/2/3 (non-predictive)                        |
+
+---
+
+## Problems and Recommendations
+
+- **High Feature Count**:  
+  - *Issue*: 35 features may lead to overfitting (905 rows)  
+  - *Recommendation*: Perform feature selection (e.g., correlation analysis, Random Forest feature importance)
+
+- **GPT-3.0 Noise**:  
+  - *Issue*: Gender and Religion may have inaccuracies  
+  - *Recommendation*: Validate during EDA; consider dropping `Religion` if noisy
+
+- **Non-Core Subjects**:  
+  - *Issue*: May have lower predictive power  
+  - *Recommendation*: Test importance in modeling
+
+- **Additional Feature Ideas**:  
+  - `Branch_Roll1_Rank`: Categorize `Roll-1` within each `Branch`  
+  - `Sem2_Low_Attendance_Flag`: 1 if `Sem2_Core_Attendance_Avg` < 70%, else 0
+
+- **General Note**:  
+  - Feature set is logical, but pruning is advised for simplicity
+
+---
+
+## Usage
+
+- **Modeling**: Use `student_performance_model_features.csv` to train a model (e.g., Random Forest) to predict `Sem3_Risk_Flag`
+- **EDA**: Analyze feature correlations (e.g., attendance vs. risk) to refine feature selection
+
 **Contact**
 
 For any inquiries or further information regarding this project, please feel free to connect with me on LinkedIn: [https://www.linkedin.com/in/shail-k-patel/](https://www.linkedin.com/in/shail-k-patel/)

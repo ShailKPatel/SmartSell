@@ -692,7 +692,121 @@ Scoring: F1-score (macro) to balance performance across classes.
 
 Cross-Validation: 5-fold CV using StratifiedKFold (~579 train, ~145 validation per fold).
 
+Feature Update and Model Retraining for PredictGrad (v4)
 
+Overview
+
+This document outlines the feature update and retraining process for the PredictGrad project to predict Sem3_Risk_Flag. We dropped additional low-importance features, switched to XGBoost, applied SMOTE, used scale_pos_weight, and tuned the decision threshold to improve recall for Sem3_Risk_Flag = 1.
+
+
+
+
+
+Dataset:
+
+
+
+
+
+Input Train + CV set: student_performance_fold_data_v3.csv (724 rows, 18 columns).
+
+
+
+Input Test set: student_performance_test_v3.csv (181 rows, 18 columns).
+
+
+
+Updated Train + CV set: student_performance_fold_data_v4.csv (724 rows, 12 columns).
+
+
+
+Updated Test set: student_performance_test_v4.csv (181 rows, 12 columns).
+
+
+
+Script: update_and_retrain_xgboost.py (artifact_id: c8f3e9a2-5d0f-4b9b-8e5d-3e9f2a7b1c4e).
+
+
+
+Outputs:
+
+
+
+
+
+Model: model_outputs_v3/xgboost_model.pkl.
+
+
+
+Feature importance: model_outputs_v3/feature_importance_v3.csv.
+
+Feature Updates
+
+
+
+
+
+Dropped Features:
+
+
+
+
+
+Sem2_Core_Theory_Total: High correlation (0.99) with Sem2_Percentile, reintroduced in error earlier.
+
+
+
+Low-importance features: Sem1_Attendance_Threshold (0.0027), Branch_AIML (0.0039), Branch_CSD (0.0057), Branch_CST (0.0094), Branch_RAI (0.0019).
+
+
+
+New Feature Set: Reduced to 12 columns (5 core features + 6 Branch_* columns):
+
+
+
+
+
+Remaining features: Roll-1, Sem1_Core_Theory_Total, Sem2_Percentile, Sem2_Sem1_Percentile_Diff, Sem2_Attendance_Threshold, Branch_CE, Branch_CEA, Branch_CS&IT, Branch_CSE, Branch_IT.
+
+Retraining Process
+
+
+
+
+
+Model: XGBoost with scale_pos_weight=4 (approximating class imbalance ratio).
+
+
+
+Class Imbalance Adjustments:
+
+
+
+
+
+SMOTE: Oversampled the minority class in training folds.
+
+
+
+Threshold Tuning: Set decision threshold to 0.3 to improve recall for Sem3_Risk_Flag = 1.
+
+
+
+Hyperparameter Tuning:
+
+
+
+
+
+Grid: n_estimators: [100, 200], max_depth: [3, 6, 10], learning_rate: [0.01, 0.1].
+
+
+
+Scoring: F1-score (macro).
+
+
+
+Cross-Validation: 5-fold CV using StratifiedKFold.
 
 
 

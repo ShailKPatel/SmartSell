@@ -616,8 +616,6 @@ Train and CV Set: 80.25% (580) Sem3_Risk_Flag = 0, 19.75% (144) Sem3_Risk_Flag =
 Test Set: 80.11% (145) Sem3_Risk_Flag = 0, 19.89% (36) Sem3_Risk_Flag = 1.
 
 
-
-
 **Contact**
 
 For any inquiries or further information regarding this project, please feel free to connect with me on LinkedIn: [https://www.linkedin.com/in/shail-k-patel/](https://www.linkedin.com/in/shail-k-patel/)

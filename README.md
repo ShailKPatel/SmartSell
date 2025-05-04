@@ -1,59 +1,61 @@
-# 📱 SmartSell: Smartphone Sales Prediction with Neural Networks
+# Data Preprocessing Documentation
 
-SmartSell is a machine learning project designed to predict the number of smartphones sold in a given target country based on their specifications, market position, and launch details. This project uses a neural network model trained on engineered and raw features to forecast unit sales.
+## Overview
+This document outlines the preprocessing steps applied to the `student_performance_dataset.csv` (905 students, CE and CE-adjacent programs) to support predictive modeling of Semester 3 academic performance. The process involves feature engineering to calculate core theory mark totals and percentiles for Semesters 1, 2, and 3, enhancing the dataset for machine learning tasks.
 
----
-
-## 🧠 Core Objective
-
-To train a neural network that accurately predicts `num_units_sold` using both raw and derived features from smartphone specifications and launch metadata.
-
----
-
-## 📊 Dataset Features
-
-| Feature | Use in Model | Type | Notes |
-|--------|--------------|------|-------|
-| `model_name` | ✅ | Raw | Encoded via text embeddings or clustering |
-| `brand_name` | ✅ | Raw | Strong categorical indicator |
-| `category` | ✅ | Raw | Budget / Midrange / Flagship |
-| `price_usd` | ✅ | Raw | Key numerical feature |
-| `launch_month` | ✅ | Derived | Captures seasonal trends |
-| `launch_day` | ✅ | Derived | Captures daily trends |
-| `target_country` | ✅ | Raw | Regional trend modeling |
-| `dust_resistance_level` | ✅ | Derived | From IP rating (0–6 scale) |
-| `water_resistance_level` | ✅ | Derived | From IP rating (0–9 scale) |
-| `ram_gb` | ✅ | Raw | Physical RAM in GB |
-| `extendable_ram_gb` | ✅ | Raw | Virtual RAM |
-| `storage_gb` | ✅ | Raw | Internal storage size |
-| `battery_mah` | ✅ | Raw | Battery size |
-| `camera_mp` | ✅ | Raw | Rear camera resolution |
-| `processor_name` | ✅ | Raw | Categorical or clustered |
-| `screen_size_inches` | ✅ | Raw | Display size |
-| `os_version` | ✅ | Raw | Version or grouped category |
-| `num_units_sold` | 🔚 Target | Raw | Regression target |
+- **Dataset**: `student_performance_dataset.csv`  
+- **Output**: `student_performance_with_percentiles.csv`  
+- **New Columns**:  
+  - `Sem1_Core_Theory_Total`  
+  - `Sem2_Core_Theory_Total`  
+  - `Sem3_Core_Theory_Total`  
+  - `Sem1_Percentile`  
+  - `Sem2_Percentile`  
+  - `Sem3_Percentile`  
 
 ---
 
-## ❌ Columns Not Used in Model
+## Preprocessing Steps
 
-The following columns are excluded from the model as they do not contribute predictive value or are used only for intermediate feature derivation:
+### 1. Load Dataset
+- Read `student_performance_dataset.csv` (905 rows, 56 columns).
 
-- `model_id`: Unique identifier, not informative for prediction
-- `launch_date`: Used only to derive `launch_month` and `launch_day`
-- `ip_rating`: Used to derive dust and water resistance levels
+### 2. Calculate Semester 1 Core Theory Total
+- **Columns**:  
+  - `Math-1 Theory`  
+  - `Physics Theory`  
+  - `Java-1 Theory`  
+  - `Software Engineering Theory`  
+- **New Column**: `Sem1_Core_Theory_Total` (sum of the above)
+
+### 3. Calculate Semester 2 Core Theory Total
+- **Columns**:  
+  - `Math-2 Theory`  
+  - `Data Structures using Java Theory`  
+  - `DBMS Theory`  
+  - `Fundamental of Electronics and Electrical Theory`  
+  - `Java-2 Theory`  
+- **New Column**: `Sem2_Core_Theory_Total`
+
+### 4. Calculate Semester 3 Core Theory Total
+- **Columns**:  
+  - `Math-3 Theory`  
+  - `DE Theory`  
+  - `FSD Theory`  
+  - `Python Theory`  
+- **New Column**: `Sem3_Core_Theory_Total`
+
+### 5. Calculate Percentiles
+- Computed percentile ranks (0–100) for:
+  - `Sem1_Core_Theory_Total` → `Sem1_Percentile`  
+  - `Sem2_Core_Theory_Total` → `Sem2_Percentile`  
+  - `Sem3_Core_Theory_Total` → `Sem3_Percentile`  
+
+### 6. Save Output
+- Saved all original columns plus new columns to `student_performance_with_percentiles.csv`.
 
 ---
 
+## Usage
 
----
-
-## 📄 License
-
-MIT License
-
----
-
-## 🤝 Contributing
-
-Pull requests and ideas are welcome. Let’s make sales prediction smarter!
+**Purpose**: Enables percentile-based analysis (e.g., predict Semester 3 percentile drop) for identifying at-risk students.

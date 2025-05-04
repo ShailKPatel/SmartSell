@@ -576,6 +576,47 @@ The analysis focused on **numerical features** to explore:
 
 ---
 
+Data Splitting for PredictGrad
+Overview
+This document outlines the data splitting process for the PredictGrad project to predict Sem3_Risk_Flag. A hybrid approach is used: 20% test set and 5-fold cross-validation (Train and CV) on the remaining 80%. This ensures robust training, hyperparameter tuning, and unbiased final evaluation for the college pitch.
+
+Dataset: student_performance_preprocessed_v2.csv (905 rows, 23 columns: 11 features + Sem3_Risk_Flag).
+Script: split_data.py
+Outputs:
+student_performance_fold_data.csv (724 rows, for 5-fold Train and CV).
+student_performance_test.csv (181 rows, for final testing).
+
+
+
+Splitting Process
+
+Hybrid Approach:
+Test Set: 20% (181 rows) reserved for final evaluation, mimicking real-world unseen data.
+Train and CV Set: 80% (724 rows) for training and tuning via 5-fold CV.
+
+
+Stratification:
+Splits are stratified by Sem3_Risk_Flag to maintain class balance (80.22% Sem3_Risk_Flag = 0, 19.78% Sem3_Risk_Flag = 1).
+
+
+Breakdown:
+Test Set: 181 rows (~145/Sem3_Risk_Flag = 0, ~36/Sem3_Risk_Flag = 1).
+Train and CV Set: 724 rows (~580/Sem3_Risk_Flag = 0, ~144/Sem3_Risk_Flag = 1).
+5-Fold Train and CV: 579 train, ~145 validation per fold (116/29 per fold).
+
+
+
+
+Random Seed: Set to 42 for reproducibility.
+
+Class Distribution
+
+Original: 80.22% (726) Sem3_Risk_Flag = 0, 19.78% (179) Sem3_Risk_Flag = 1.
+Train and CV Set: 80.25% (580) Sem3_Risk_Flag = 0, 19.75% (144) Sem3_Risk_Flag = 1.
+Test Set: 80.11% (145) Sem3_Risk_Flag = 0, 19.89% (36) Sem3_Risk_Flag = 1.
+
+
+
 
 **Contact**
 

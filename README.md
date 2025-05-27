@@ -2,51 +2,111 @@
 
 **Overview**
 
-PredictGrad is a machine learning project designed to forecast the academic performance of students in core Semester 3 subjects within Computer Engineering (CE) and related programs at a local engineering college. By leveraging a dataset encompassing 905 students, the project aims to identify performance patterns and facilitate data-driven academic support initiatives.
+PredictGrad is a machine learning pipeline aimed at forecasting the academic performance of engineering students in their core Semester 3 subjects—Math-3, Digital Electronics (DE), Full Stack Development (FSD), and Python. The goal is to use these predictions to identify students at risk of a significant academic drop and enable early intervention strategies.
 
-**Dataset:** `student_performance_dataset.csv` (905 rows, 56 columns)
+**Dataset**
 
-**Problem Definition**
+* **Source:** Digitized official academic records from a local engineering college
+* **File:** `student_performance_dataset.csv`
+* **Size:** 905 students, 56 features (after cleaning)
+* **Contents:**
 
-The primary objective of this project is to predict student performance in the core Semester 3 subjects – Math-3, Digital Electronics (DE), Full Stack Development (FSD), and Python. This predictive capability, based on data from prior semesters, enables the early detection of students who may face academic challenges.
+  * Student demographics (Branch, Gender, Religion)
+  * Subject-wise theory and practical marks
+  * Subject-wise attendance
+  * Engineered academic metrics
 
-**Data Collection**
+---
 
-* **Source:** Digital academic records obtained directly from a local engineering college, spanning multiple departments (e.g., CE, IT, AIML).
-* **Correctness:** High accuracy, as the data originates from official and verified records.
-* **Process:** Records from various departments were consolidated into a unified dataset, ensuring consistency in the format of marks and attendance data.
-* **Initial Size:** 905 students (after data cleaning).
-* **Columns:** Included Student ID, Branch, Division (Div-1/2/3), Gender, Religion, theory and practical marks, attendance records, and mentor assignments.
+## Problem Statement
 
-**Data Preprocessing**
+The project consists of two main tasks:
 
-The preprocessing phase transformed the raw data into a format suitable for machine learning analysis through rigorous cleaning. This process resulted in a refined dataset of 905 students.
+1. **Regression Models:**
+   Predict raw marks for each Semester 3 core subject (Math-3, DE, FSD, Python) using features from Semesters 1 and 2.
 
-**Data Cleaning**
+2. **Risk Classification Model:**
+   Using the predicted Semester 3 marks, calculate `Sem3_Percentile`, then define a binary flag `Sem3_Risk_Flag = 1` if a student's percentile drops by ≥10 points compared to `Sem2_Percentile`. This flag becomes the target for a classification model.
 
-* **Dropout Removal:** Students who had withdrawn from the college were excluded, leaving a dataset of 905 currently enrolled students.
-* **Identifier Anonymization:** College IDs and student names were removed to protect privacy and replaced with unique, anonymized Student IDs.
-* **Inferred Features:** Gender and Religion were inferred from student names using GPT-3.0, with an acknowledgment of potential inaccuracies inherent in this inference method.
+---
 
-**Feature Engineering**
+## Data Preprocessing
 
-* **Department Extraction:** The department for each student in Semesters 1/2 (A, B, D) and Semester 3 (A, B, C, D) was derived from the first character of their Division (e.g., A1 was transformed to A).
-* **Semester Core Theory Totals:**
-    * **Semester 1:** The sum of marks from Math-1 Theory, Physics Theory, Java-1 Theory, and Software Engineering Theory was calculated, creating a new column: `Sem1_Core_Theory_Total`.
-    * **Semester 2:** The sum of marks from Math-2 Theory, Data Structures using Java Theory, DBMS Theory, Fundamental of Electronics and Electrical Theory, and Java-2 Theory was calculated, creating a new column: `Sem2_Core_Theory_Total`.
-    * **Semester 3:** The sum of marks from Math-3 Theory, DE Theory, FSD Theory, and Python Theory was calculated, creating a new column: `Sem3_Core_Theory_Total`.
-* **Percentile Calculation:** Percentile ranks (ranging from 0 to 100) were computed for the newly created semester total columns:
-    * `Sem1_Core_Theory_Total` $\rightarrow$ `Sem1_Percentile`
-    * `Sem2_Core_Theory_Total` $\rightarrow$ `Sem2_Percentile`
-    * `Sem3_Core_Theory_Total` $\rightarrow$ `Sem3_Percentile`
-* **Output:** All original columns, along with the newly engineered features, were saved to the file `student_performance_with_percentiles.csv`.
-* **Script:** The Python script used for these calculations is `calculate_semester_totals_percentiles.py`.
+* **Dropout Filtering:** Removed rows corresponding to dropouts.
+* **Anonymization:** Student names and IDs were dropped and replaced with anonymized identifiers.
+* **Encoding:** Gender and Religion were inferred from names using GPT, with acknowledgment of possible noise.
+* **Cleaning:** All categorical features were one-hot encoded.
 
+---
 
-### Feature Selection for PredictGrad
+## Feature Engineering
 
-This section outlines the features selected for modeling the `Sem3_Risk_Flag` (1 if Semester 3 percentile drops by 10 points from Semester 2, else 0) in the PredictGrad project. T
+* **Semester Totals:**
 
-**Contact**
+  * `Sem1_Core_Theory_Total` = Math-1 + Physics + Java-1 + SE (Theory only)
+  * `Sem2_Core_Theory_Total` = Math-2 + DSJ + DBMS + ELEC + Java-2 (Theory only)
+  * `Sem3_Core_Theory_Total` = Math-3 + DE + FSD + Python (Theory only)
+* **Percentiles:**
 
-For any inquiries or further information regarding this project, please feel free to connect with me on LinkedIn: [https://www.linkedin.com/in/shail-k-patel/](https://www.linkedin.com/in/shail-k-patel/)
+  * Calculated percentile scores for each semester total column.
+
+    * `Sem1_Percentile`, `Sem2_Percentile`, `Sem3_Percentile`
+* **Output File:**
+  All processed columns stored in `student_performance_with_percentiles.csv`.
+
+---
+
+## Regression Modeling
+
+Each Semester 3 subject is modeled independently using a supervised regression approach.
+
+**Evaluation Metric:**
+We use **Mean Absolute Error (MAE)** as the primary evaluation metric.
+
+* **Why MAE?**
+
+  * MAE directly represents the average deviation in marks, making it easy to interpret for stakeholders.
+  * It treats all errors equally, which is ideal when the goal is to minimize overall prediction drift, not just extreme outliers.
+  * Unlike RMSE, MAE avoids exaggerating the impact of a few high-error predictions.
+
+---
+
+## Subject Models (in progress)
+
+Each subject will have a dedicated regression model trained with 5-fold cross-validation. The following subjects are being modeled:
+
+* Math-3 Theory (`Math-3 Theory`)
+* Digital Electronics Theory (`DE Theory`)
+* Full Stack Development Theory (`FSD Theory`)
+* Python Theory (`Python Theory`)
+
+Each model is trained on features from Semesters 1 and 2 including:
+
+* Theory/practical marks
+* Attendance percentages
+* Engineered totals
+* One-hot encoded categorical data
+
+---
+
+## Risk Detection
+
+After predicting Semester 3 subject marks:
+
+1. We calculate `Sem3_Core_Theory_Total` from the predictions.
+2. Percentiles are recalculated.
+3. A risk flag `Sem3_Risk_Flag` is generated:
+
+   * 1 if `Sem3_Percentile` drops by ≥10 compared to `Sem2_Percentile`
+   * 0 otherwise
+
+This flag serves as the label for the final binary classification model aimed at detecting at-risk students.
+
+---
+
+## Contact
+
+For questions, suggestions, or collaboration opportunities, feel free to connect via LinkedIn:
+[https://www.linkedin.com/in/shail-k-patel/](https://www.linkedin.com/in/shail-k-patel/)
+
+---

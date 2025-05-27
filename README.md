@@ -89,7 +89,6 @@ Each model is trained on features from Semesters 1 and 2 including:
 
 ---
 
-
 ## Risk Detection
 
 After predicting Semester 3 subject marks:

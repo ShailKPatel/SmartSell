@@ -1,0 +1,6 @@
+Model,MAE
+Ridge Regression,6.631286597438105
+Lasso Regression,6.610372863675976
+ElasticNet Regression,6.610371381237567
+Ensemble,6.317900664793538
+

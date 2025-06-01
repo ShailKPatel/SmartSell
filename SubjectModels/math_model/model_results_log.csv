@@ -26,6 +26,3 @@ ElasticNet Regression(tuned),"Full-feature regression with Repeated 5-Fold CV an
 Ridge Regression,"Full-feature regression with Repeated 5-Fold CV and Regularization, alpha selected via two-stage grid search",6.6137
 Lasso Regression,"Full-feature regression with Repeated 5-Fold CV and Regularization, alpha selected via two-stage grid search",6.568
 Random Forest Regression,"Full-feature regression with 5-Fold CV, parameters selected via randomized grid search",6.7768
-Ridge Regression,"Full-feature regression with Repeated 5-Fold CV and Regularization, alpha selected via two-stage grid search",6.6137
-Lasso Regression,"Full-feature regression with Repeated 5-Fold CV and Regularization, alpha selected via two-stage grid search",6.568
-Random Forest Regression,"Full-feature regression with 5-Fold CV, parameters selected via randomized grid search",6.7768

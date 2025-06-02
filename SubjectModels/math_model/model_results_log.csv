@@ -7,6 +7,8 @@ Polynomial Regression (Order 3),5-Fold CV + one-hot encoding + degree 3,16.6254
 "Polynomial Regression (Order 3, High VIF columns dropped)",5-Fold CV + one-hot encoding + degree 3 + high VIF columns dropped,17.1186
 Polynomial Regression (Order 4),5-Fold CV + one-hot encoding + degree 4,15.5107
 "Polynomial Regression (Order 4, High VIF columns dropped)",5-Fold CV + one-hot encoding + degree 4 + high VIF columns dropped,15.5209
+"SVR (RBF, full features)",5-Fold CV + one-hot encoding + StandardScaler + RBF kernel + high VIF columns dropped,8.2742
+"SVR (RBF, High VIF columns dropped)",5-Fold CV + one-hot encoding + StandardScaler + RBF kernel + high VIF columns dropped,8.285
 Random Forest Regressor,Full-feature regression with 5-Fold CV and OneHotEncoding,6.8736
 Random Forest Regressor (Tuned),"{'regressor__n_estimators': 200, 'regressor__min_samples_split': 2, 'regressor__min_samples_leaf': 2, 'regressor__max_features': 'sqrt', 'regressor__max_depth': 20}",6.8051
 Random Forest Regressor (Tuned),"{'regressor__n_estimators': 1000, 'regressor__min_samples_split': 5, 'regressor__min_samples_leaf': 4, 'regressor__max_features': None, 'regressor__max_depth': None}",6.8434

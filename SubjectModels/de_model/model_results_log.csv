@@ -1,0 +1,9 @@
+Model,Approach,MAE
+Multiple Linear Regression,5-Fold CV + one-hot encoding,7.5616
+Multiple Linear Regression (High VIF columns dropped),5-Fold CV + one-hot encoding,6.6735
+Polynomial Regression (Order 2),5-Fold CV + one-hot encoding + degree 2,28.8104
+"Polynomial Regression (Order 2, High VIF columns dropped)",5-Fold CV + one-hot encoding + degree 2 + high VIF columns dropped,33.3695
+Polynomial Regression (Order 3),5-Fold CV + one-hot encoding + degree 3,18.0693
+"Polynomial Regression (Order 3, High VIF columns dropped)",5-Fold CV + one-hot encoding + degree 3 + high VIF columns dropped,18.8222
+Polynomial Regression (Order 4),5-Fold CV + one-hot encoding + degree 4,16.7219
+"Polynomial Regression (Order 4, High VIF columns dropped)",5-Fold CV + one-hot encoding + degree 4 + high VIF columns dropped,17.5248

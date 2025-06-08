@@ -33,5 +33,9 @@ Ridge Regression (Tuned),Full-feature regression with 5-Fold CV and Regularizati
 Ridge Regression (Tuned),Feature selection + polynomial features + 5-Fold CV + Best Alpha: 10.0 + Number of Features: 10,6.7767
 Ridge Regression (Tuned),Feature selection and polynomial features with 5-Fold CV Alpha: 10.0 Number of Features: 10,6.8055
 Ridge Regression (tuned),Tuned regression with 5-Fold CV Best Alpha: 54.5559,6.6215
+Ridge Regression (tuned),"Full-feature regression with Repeated 5-Fold CV and Regularization, alpha selected via two-stage grid search",6.6143
 Lasso Regression,Full-feature regression with 5-Fold CV and Regularization,6.6296
-Lasso Regression(tuned),Tuned regression with 5-Fold CV,6.627
+Lasso Regression (tuned),Tuned regression with 5-Fold CV,6.627
+Lasso Regression (tuned),"Full-feature regression with Repeated 5-Fold CV and Regularization, alpha selected via two-stage grid search",6.585
+ElasticNet Regression,Full-feature regression + 5-Fold CV and L1+L2 Regularization,6.6235
+ElasticNet Regression (tuned),"Full-feature regression with Repeated 5-Fold CV and Regularization, alpha and L1 ratio selected via grid search",6.5851

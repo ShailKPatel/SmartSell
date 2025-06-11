@@ -41,15 +41,17 @@ ElasticNet Regression,Full-feature regression + Repeated 5-Fold CV + GridSearch 
 ElasticNet Regression (tuned),"Full-feature regression with Repeated 5-Fold CV and Regularization, alpha and L1 ratio selected via grid search",6.5851
 ExtraTrees Regressor,OneHot + RobustScaler + Repeated 5-Fold CV + GridSearch,6.6325
 HistGradientBoosting Regressor,OneHot + RobustScaler + Repeated 5-Fold CV + GridSearch,6.7527
-NGBoost Regressor,OneHot + RobustScaler + Repeated 5-Fold CV + GridSearch,6.6783
+NGBoost Regressor,OneHot + RobustScaler + Repeated 5-Fold CV + GridSearch,6.6822
 Stacked Regressor (Ridge + ElasticNet + RandomForest + XGBoost),OneHot + RobustScaler + Repeated 5-Fold CV + Ridge meta-model,6.5274
-Stacked Regressor (Ridge + ElasticNet + XGBoost + LightGBM),OneHot + RobustScaler + Repeated 5-Fold CV + CatBoost meta-model,6.8108
+Stacked Regressor (Ridge + ElasticNet + XGBoost + LightGBM),OneHot + RobustScaler + Repeated 5-Fold CV + CatBoost meta-model,
 Stacking Regressor (Ridge + ElasticNet + XGBoost + LightGBM + CatBoost),OneHot + RobustScaler + Repeated 5-Fold CV + Stacking,6.5365
 StackNet GradientBoosting Stacking (Layer 1 + Layer 2),Layer 1: Ridge + Lasso + XGBoost; Layer 2: GradientBoostingRegressor; OneHot + RobustScaler + Repeated 5-Fold CV,7.0073
 Voting Ensemble (Tree-Based Only),RandomForest + ExtraTrees + LightGBM + XGBoost; Weighted Voting; OneHot + RobustScaler + Repeated 5-Fold CV,6.7719
 Stacked Regressor (Ridge + ElasticNet + RandomForest + XGBoost),Diverse Feature Sets + OneHot + RobustScaler + Repeated 5-Fold CV + Linear meta-model,6.5338
 Bootstrap Aggregated XGBoost,10 Bootstrapped XGBoost Models + Averaged Predictions + OneHot + RobustScaler + Repeated 5-Fold CV,6.6757
-Voting Regressor (Ridge + Lasso + ElasticNet),OneHot + RobustScaler + Repeated 5-Fold CV + BayesSearchCV,6.3179
 Voting Regressor (Ridge + Lasso + Random Forest),OneHot + RobustScaler + Repeated 5-Fold CV + BayesSearchCV + Manual Weights,6.5788
-Voting Regressor (Ridge + Lasso + ElasticNet),OneHot + RobustScaler + Repeated 5-Fold CV + BayesSearchCV + Weighted Voting,6.3179
 Voting Regressor (Ridge + Lasso + ElasticNet),OneHot + RobustScaler + Repeated 5-Fold CV + BayesSearchCV + Weighted Voting,6.6098
+Voting Regressor (Ridge + Lasso + Random Forest),OneHot + RobustScaler + Repeated 5-Fold CV + BayesSearchCV + Manual Weights,6.5788
+Voting Regressor (Ridge + Lasso + ElasticNet),OneHot + RobustScaler + Repeated 5-Fold CV + BayesSearchCV + Manual Weights,6.6095
+Voting Regressor (Ridge + Lasso + ElasticNet),OneHot + RobustScaler + Repeated 5-Fold CV + BayesSearchCV,6.3179
+Stacking Regressor (Ridge + Lasso + ElasticNet),OneHot + RobustScaler + Repeated 5-Fold CV + BayesSearchCV + Stacking,6.6037
